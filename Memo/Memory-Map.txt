@@ -1,0 +1,170 @@
+===== Before we start =====
+
+    When we are handed over the CPU, we begin executing instructions
+at the physical memory location 7c00.  There is no virtual memory,
+and we can only make use of the lower 640KiB of RAM.
+
+Physical Memory:
+                                                                                  8000
+    ||        |        |B.S.|   |        ||        |        |        |        ||  7000
+    ||        |        |        |        ||        |        |        |        ||  6000
+    ||        |        |        |        ||        |        |        |        ||  5000
+    ||        |        |        |        ||        |        |        |        ||  4000
+    ||        |        |        |        ||        |        |        |        ||  3000
+    ||        |        |        |        ||        |        |        |        ||  2000
+    ||        |        |        |        ||        |        |        |        ||  1000
+    ||        |        |        |        ||        |    |BDA|R   M  I|   D   T||  0000
+    ============================================================================
+
+Virtual Memory: N/A
+
+
+===== Bootsector (FAT12) =====
+
+    At this point, we need to do one thing exactly: Load the boot loader,
+called Start.  For that, we load the 
+
+Physical Memory:
+                                                                                 10000
+    ||        |        |        |        ||        |        |        |        ||  f000
+    ||        |        |        |        ||        |        |        |        ||  e000
+    ||        |        |        |        ||        |        |        |        ||  d000
+    ||        |        |        |        ||        |        |        |        ||  c000
+    ||        |        |        |        ||        |        |        |        ||  b000
+    ||        |        |        |        ||        |        |        |        ||  a000
+    ||        |        |        |        ||        |        |        |        ||  9000
+    ||Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack ||  8000
+    ||        |        |        |        ||        |        |        |        ||  7000
+    ||Start Start Start Start Start Start||Start Start Start Start Start Start||  6000
+    ||RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir ||  5000
+    || RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir||  4000
+    ||FAT FAT FAT FAT FAT FAT FAT FAT FAT|FAT FAT FAT FAT FAT FAT FAT FAT FAT ||  3000
+    || FAT FAT FAT FAT FAT FAT FAT FAT FAT|FAT FAT FAT FAT FAT FAT FAT FAT FAT||  2000
+    ||        |        |        |        ||        |        |        |        ||  9000
+    ||        |        |        |        ||bootsctr|    |BDA|  Real-mode  IDT ||  0000
+    ============================================================================
+
+Low 2 KB:
+                                                                                  0800
+    ||        |        |        |        ||        |        |        |        ||  0700
+    ||        |        |        |        ||        |        | bs bootsector bs||  0600
+    ||        |        |        |        ||        |        |        |        ||  0500
+    || BIOS Data Area  BIOS Data Area  BIOS Data Area  BIOS Data Area  BIOS DA||  0400
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (c0..ff) ||  0300
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (80..bf) ||  0200
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (40..7f) ||  0100
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (00..3f) ||  0000
+    ============================================================================
+
+===== Start =====
+
+Physical Memory:
+                                                                                 800000
+    ||        |        |        |        ||        |        |        |        || 700000
+    ||        |        |        |        ||        |        |        |        || 600000
+    ||        |        |        |        ||        |        |        |        || 500000
+    ||        |        |        |        ||        |        |        |        || 400000
+    ||        |        |        |        ||        |        |        |        || 300000
+    ||        |        |        |        ||        |        |        |        || 200000
+    || Initial Paging Structure Initial Paging Structure Initial Paging Struct|| 100000
+    ||LegacyHW|LegacyHW|VideoMem|        ||        |        |   |Elfo|Mem|Boot|| 000000
+    ============================================================================
+
+Low 1 MB:
+                                                                                 100000
+    || Reserved for other legacy hardware  Reserved for other legacy hardware || 0f0000
+    || Reserved for other legacy hardware  Reserved for other legacy hardware || 0e0000
+    || Reserved for other legacy hardware  Reserved for other legacy hardware || 0d0000
+    || Reserved for other legacy hardware  Reserved for other legacy hardware || 0c0000
+    ||Video Memory   Video Memory   Video Memory   Video Memory   Video Memory|| 0b0000
+    ||Video Memory   Video Memory   Video Memory   Video Memory   Video Memory|| 0a0000
+    ||        |        |        |        ||        |        |        |        || 090000
+    ||        |        |        |        ||        |        |        |        || 080000
+    ||        |        |        |        ||        |        |        |        || 070000
+    ||        |        |        |        ||        |        |        |        || 060000
+    ||        |        |        |        ||        |        |        |        || 050000
+    ||        |        |        |        ||        |        |        |        || 040000
+    ||        |        |        |        ||        |        |        |        || 030000
+    ||fo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo Elfo|| 020000
+    ||mo Memo Memo Memo Memo Memo Memo Memo Memo Memo Memo Memo Memo Memo Memo|| 010000
+    ||        |        |        |   |Stck||   |Strt|Root Dir| FAT FAT|IDT|Lows|| 000000
+    ============================================================================
+
+Low 64 KB:
+                                                                                 10000
+    ||        |        |        |        ||        |        |        |        ||  f000
+    ||        |        |        |        ||        |        |        |        ||  e000
+    ||        |        |        |        ||        |        |        |        ||  d000
+    ||        |        |        |        ||        |        |        |        ||  c000
+    ||        |        |        |        ||        |        |        |        ||  b000
+    ||        |        |        |        ||        |        |        |        ||  a000
+    ||        |        |        |        ||        |        |        |        ||  9000
+    ||Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack Stack ||  8000
+    ||        |        |        |        ||        |        |        |        ||  7000
+    ||Start Start Start Start Start Start||Start Start Start Start Start Start||  6000
+    ||RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir ||  5000
+    || RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir RootDir||  4000
+    ||FAT FAT FAT FAT FAT FAT FAT FAT FAT|FAT FAT FAT FAT FAT FAT FAT FAT FAT ||  3000
+    || FAT FAT FAT FAT FAT FAT FAT FAT FAT|FAT FAT FAT FAT FAT FAT FAT FAT FAT||  2000
+    ||L           M           6           4           I           D          T||  1000
+    || Public |        |L M 6 4 I/O M A P||bootsctr|    |BDA|  Real-mode  IDT ||  0000
+    ============================================================================
+
+Low 4 KB:
+                                                                                  1000
+    || Publics  Publics  Publics  Publics  Publics  Publics  Publics  Publics ||  0f00
+    || Publics  Publics  Publics  Publics  Publics  Publics  Publics  Publics ||  0e00
+    ||        |        |        |        ||        |        |        |        ||  0d00
+    ||        |        |        |        ||        |        |        |        ||  0c00
+    || Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map||  0b00
+    || Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map||  0a00
+    || Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map||  0900
+    || Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map Long-Mode I/O Map||  0800
+    ||        |        |        |        ||        |        |        |        ||  0700
+    ||        |        |        |        ||        |        | bs bootsector bs||  0600
+    ||        |        |        |        ||        |        |        |        ||  0500
+    || BIOS Data Area  BIOS Data Area  BIOS Data Area  BIOS Data Area  BIOS DA||  0400
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (c0..ff) ||  0300
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (80..bf) ||  0200
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (40..7f) ||  0100
+    || Real-Mode IDT   Real-Mode IDT   Real-Mode IDT   Real-Mode IDT (00..3f) ||  0000
+    ============================================================================
+
+Virtual Memory:
+    [00000000_00000000, 00000000_00020000) Identity boot page
+    [00000000_00020000, 00000000_00040000) Identity boot page
+
+
+===== Memo bootstrap =====
+
+    During the bootstrap, Memo will create new 4K pages (using the initial
+paging structure @100000h) and move the initial paging structure itself
+out of its current location at the first, and update the GDT register
+(assuming AMD64 for the moment).  It will return and expect Elfo to
+reallocate it to new pages.  Then Elfo will reallocate itself,
+and the first page(s) will be reclaimed and reused for basic
+kernel data structures using 4 KB pages.
+
+Physical Memory:
+                                                                                 800000
+    ||        |        |        |        ||        |        |        |        || 700000
+    ||        |        |        |        ||        |        |        |        || 600000
+    ||        |        |        |        ||        |        |        |        || 500000
+    ||        |        |        |        ||        |        |        |        || 400000
+    ||        |        |        |        ||        |        |        |        || 300000
+    ||        |        |        |        ||        |        |        |        || 200000
+    || Initial Paging Structure Initial Paging Structure Initial Paging Struct|| 100000
+    ||LegacyHW|LegacyHW|VideoMem|        ||        |        |   |Elfo|Mem|Boot|| 000000
+    ============================================================================
+
+Virtal Memory:
+
+    [00000000_00000000, 00000000_00020000) Identity boot page
+    [00000000_00020000, 00000000_00040000) Identity boot page
+    [FFFFFFFF_00000000, FFFFFFFF_F0000000) Reserved for Memo
+        [FFFFFFFF_00000000, FFFFFFFF_C0000000) For page tables
+        [FFFFFFFF_C0000000, FFFFFFFF_D0000000) For static heap
+        [FFFFFFFF_D0000000, FFFFFFFF_F0000000) For future use
+    [FFFFFFFF_F0000000, FFFFFFFF_F4000000) Kernel Text
+        [FFFFFFFF_F0000000, FFFFFFFF_F1000000) Memo Text
+

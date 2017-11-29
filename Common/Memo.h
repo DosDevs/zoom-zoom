@@ -1,0 +1,43 @@
+#pragma once
+
+enum Memo_Function {
+    MEMO_NOOP,
+    MEMO_RELOCATE,
+    MEMO_LOAD,
+    MEMO_DISCARD,
+    MEMO_GET_PROPERTIES, // Maybe... GET_INFO?  GET_INFORMATION?
+    MEMO_BOOTSTRAP = 0xffff
+};
+
+enum Memo_Load_Options {
+    MEMO_LOAD_NO_OPTIONS,
+    MEMO_LOAD_KERNEL,
+    MEMO_LOAD_RING_1,
+    MEMO_LOAD_RING_2,
+    MEMO_LOAD_USER,
+    MEMO_LOAD_CONTIGUOUS,
+    MEMO_LOAD_IDENTITY
+};
+
+enum Memo_Relocate_Options {
+    MEMO_RELOCATE_NO_OPTIONS,
+    MEMO_RELOCATE_KERNEL,
+    MEMO_RELOCATE_RING_1,
+    MEMO_RELOCATE_RING_2,
+    MEMO_RELOCATE_USER,
+    MEMO_RELOCATE_CONTIGUOUS,
+    MEMO_RELOCATE_IDENTITY
+};
+
+enum Memo_Bootstrap_Options {
+    MEMO_BOOTSTRAP_INITIALIZE,
+    MEMO_BOOTSTRAP_ALLOCATE,
+    MEMO_BOOTSTRAP_RELOCATE
+};
+
+enum Memo_Discard_Options {
+};
+
+enum Memo_Get_Properties_Options {
+};
+

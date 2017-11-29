@@ -72,7 +72,6 @@ Start_1:
 
     mov eax, 0
     mov bx, 0
-    mov ds, 0
     mov [ds:bx], eax
     mov eax, [ds:bx]
     call Print_DWORD_16
