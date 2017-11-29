@@ -1,5 +1,5 @@
 ASM=yasm
-CC=clang++ -c -std=c++1z
+CC=clang++50 -c -std=c++17
 LINKER=ld -dynamic-linker /libexec/ld-elf.so.1 -L/usr/lib
 
 clean:
