@@ -1,0 +1,11 @@
+include ../Makefile.inc
+
+COMPILE=$(CC) -ffreestanding -I../Common
+LINK4=clang++ -nostartfiles -no_new_main -e Entry
+LINK=ld.lld -static -e Entry -nostdlib -t --image-base=$(BASE_ADDRESS) --stats
+# -Ttext $(TEXT_ADDRESS) -Tdata $(DATA_ADDRESS) -Tbss $(BSS_ADDRESS) \
+    -nostartfiles -no_new_main -e Entry
+LINK2=ld.lld -static -e Entry -nostdlib -t --stats
+LINK3=ld -nostartfiles -no_new_main -e Entry
+
+
